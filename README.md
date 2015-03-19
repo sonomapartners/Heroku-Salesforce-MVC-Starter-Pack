@@ -1,1 +1,3 @@
-# heroku-salesforce-starter-packs
+# Heroku Salesforce MVC Starter Pack
+
+
