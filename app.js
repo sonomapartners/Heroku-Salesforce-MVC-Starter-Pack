@@ -1,13 +1,16 @@
-var express = require('express');
-var expressLayouts = require('express-ejs-layouts');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
+// import our needed libraries
+var express = require('express'),
+    expressLayouts = require('express-ejs-layouts'),
+    path = require('path'),
+    favicon = require('serve-favicon'),
+    logger = require('morgan'),
+    cookieParser = require('cookie-parser'),
+    bodyParser = require('body-parser'),
+    session = require('express-session');
 
-var routes = require('./routes/index');
-var users = require('./routes/users');
+// import our controllers
+var routes = require('./routes/index'),
+    users = require('./routes/users');
 
 var app = express();
 
@@ -18,13 +21,37 @@ app.set('layout', 'layout');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(__dirname + '/public/favicon.ico'));
+
+// enable logging
 app.use(logger('dev'));
+
+// enable form parsing
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
+// enable reading cookies
 app.use(cookieParser());
+
+// set the static path to serve static content from (images, js, css, etc)
 app.use(express.static(path.join(__dirname, 'public')));
+
+// set up a session so we can log people in/out
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'test',
+    saveUninitialized: false,
+    resave: true
+}));
+
+// set up layouts
 app.use(expressLayouts);
 
+// helper middleware to make user info visible to templates
+app.use(function(req, res, next) {
+    res.locals.user = req.session.user;
+    next();
+});
+
+// set up routes
 app.use('/', routes);
 app.use('/users', users);
 
@@ -58,6 +85,5 @@ app.use(function(err, req, res, next) {
     error: {}
   });
 });
-
 
 module.exports = app;
